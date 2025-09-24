@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'variables',
+    'measurements',
 ]
 
 MIDDLEWARE = [
@@ -75,14 +77,11 @@ WSGI_APPLICATION = 'provesi.wsgi.application'
 # provesi/settings.py
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "provesi_db",
-        "USER": "postgres",         # ajusta
-        "PASSWORD": "postgres",     # ajusta
-        "HOST": "localhost",
-        "PORT": "5432",
+    "ENGINE": "django.db.backends.sqlite3",
+    "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
 
 
 
