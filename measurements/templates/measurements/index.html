@@ -1,0 +1,97 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <title>Registro de Inventario</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto;
+        }
+        .wrap {
+            height: 100%;
+            display: grid;
+            place-items: center;
+        }
+        button {
+            font-size: 1.1rem;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .msg {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        input {
+            position: absolute;
+            left: -9999px;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+        <div>
+            <button id="btn">Registrar inventario</button>
+            <div class="msg" id="msg"></div>
+        </div>
+        </div>
+        <!-- input oculto: el lector escribe aquí y envía Enter -->
+        <input id="scan" autocomplete="off" />
+        <script>
+        const btn = document.getElementById("btn");
+        const msg = document.getElementById("msg");
+        const scan = document.getElementById("scan");
+        let lastBarcode = ""; // último código escaneado
+
+        function focusScan() {
+            scan.focus();
+        }
+        window.addEventListener("load", focusScan);
+        window.addEventListener("click", focusScan);
+
+        // Al terminar el escaneo (Enter), guarda el código
+        scan.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+            lastBarcode = scan.value.trim();
+            scan.value = "";
+            msg.textContent = `Código leído: ${lastBarcode}. Ahora presiona el botón para registrar.`;
+            }
+        });
+
+        btn.addEventListener("click", async () => {
+            if (!lastBarcode) {
+            msg.textContent = "Escanea un código y luego oprime el botón.";
+            return;
+            }
+            msg.textContent = "Registrando…";
+            const t0 = performance.now(); // métrica end-to-end (cliente)
+            try {
+            const res = await fetch("/measurements/scan/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                barcode: lastBarcode,
+                quantity: 1,
+                // Cambia "scenario" para pruebas: "normal" o "overloaded"
+                scenario: "normal",
+                }),
+            });
+            const data = await res.json();
+            const t1 = performance.now();
+            const rtt = Math.round(t1 - t0); // tiempo total cliente-servidor
+            if (!res.ok || !data.ok)
+                throw new Error(data?.error || "Error desconocido");
+            msg.textContent = `OK (#${data.entry_id}) | t_srv=${data.duration_ms}ms | t_e2e=${rtt}ms`;
+            lastBarcode = "";
+            } catch (err) {
+            msg.textContent = "Fallo: " + err.message;
+            }
+        });
+        </script>
+    </body>
+    </html>
