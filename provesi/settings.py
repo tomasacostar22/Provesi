@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#tq(2d6n_)4hn1)r%_g7)fe!kq)%wij22&ks=t^jsmig69unis'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'provesi.wsgi.application'
 # provesi/settings.py
 DATABASES = {
     "default": {
-    "ENGINE": "django.db.backends.sqlite3",
-    "NAME": BASE_DIR / "db.sqlite3",
+    "ENGINE": "django.db.backends.postgresql_psycopg2",
+    "NAME": "provesi_db",
+    "USER": "provesi_user",
+    "PASSWORD": "1234",
+    "HOST": "172.31.25.227",
+    "PORT": "5432",
     }
 }
 
